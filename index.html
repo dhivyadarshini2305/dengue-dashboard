@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dengue Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; background: #f4f4f4; }
+        .card { background: white; padding: 20px; width: 350px; margin: 40px auto; border-radius: 10px; }
+        input { margin: 10px; padding: 10px; width: 80%; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+
+<h1>Dengue Prediction Dashboard</h1>
+
+<div class="card">
+    <input id="state" placeholder="State (e.g., Punjab)">
+    <input id="year" placeholder="Year">
+    <input id="deaths" placeholder="Deaths">
+
+    <button onclick="predict()">Predict</button>
+
+    <h2 id="result"></h2>
+</div>
+
+<canvas id="chart" width="400" height="200"></canvas>
+
+<script>
+let chart;
+
+function predict() {
+    let state = document.getElementById("state").value;
+    let year = document.getElementById("year").value;
+    let deaths = document.getElementById("deaths").value;
+
+    fetch("https://dengue-dashboard-production.up.railway.app/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            state: state,
+            year: parseInt(year),
+            deaths: parseInt(deaths)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerText =
+            "Predicted Cases: " + data.cases;
+
+        drawChart(data.cases);
+    });
+}
+
+function drawChart(value) {
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById("chart"), {
+        type: "bar",
+        data: {
+            labels: ["Prediction"],
+            datasets: [{
+                label: "Cases",
+                data: [value]
+            }]
+        }
+    });
+}
+</script>
+
+</body>
+</html>
