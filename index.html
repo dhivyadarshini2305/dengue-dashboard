@@ -1,31 +1,107 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Dengue Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        body { font-family: Arial; text-align: center; background: #f4f4f4; }
-        .card { background: white; padding: 20px; width: 350px; margin: 40px auto; border-radius: 10px; }
-        input { margin: 10px; padding: 10px; width: 80%; }
-        button { padding: 10px; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: #0f172a;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            width: 320px;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #38bdf8;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0ea5e9;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chart-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            width: 500px;
+        }
+
+        canvas {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
     </style>
 </head>
+
 <body>
 
 <h1>Dengue Prediction Dashboard</h1>
 
-<div class="card">
-    <input id="state" placeholder="State (e.g., Punjab)">
-    <input id="year" placeholder="Year">
-    <input id="deaths" placeholder="Deaths">
+<div class="container">
 
-    <button onclick="predict()">Predict</button>
+    <!-- Input Section -->
+    <div class="card">
+        <h3>Predict Dengue Cases</h3>
 
-    <h2 id="result"></h2>
+        <input id="state" placeholder="State (e.g., Punjab)">
+        <input id="year" placeholder="Year">
+        <input id="deaths" placeholder="Deaths">
+
+        <button onclick="predict()">Predict</button>
+
+        <div id="result"></div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-card">
+        <h3>Prediction Chart</h3>
+        <canvas id="chart"></canvas>
+    </div>
+
 </div>
-
-<canvas id="chart" width="400" height="200"></canvas>
 
 <script>
 let chart;
@@ -46,6 +122,7 @@ function predict() {
     })
     .then(res => res.json())
     .then(data => {
+
         document.getElementById("result").innerText =
             "Predicted Cases: " + data.cases;
 
@@ -59,10 +136,11 @@ function drawChart(value) {
     chart = new Chart(document.getElementById("chart"), {
         type: "bar",
         data: {
-            labels: ["Prediction"],
+            labels: ["Predicted Cases"],
             datasets: [{
                 label: "Cases",
-                data: [value]
+                data: [value],
+                backgroundColor: "#38bdf8"
             }]
         }
     });
