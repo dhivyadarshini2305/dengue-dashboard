@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dengue Dashboard</title>
+    <title>Dengue Analysis Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -19,18 +19,24 @@
 
         .container {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            padding: 20px;
             flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
         }
 
         .card {
             background: #1e293b;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             width: 320px;
-            box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .chart-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            width: 500px;
         }
 
         input {
@@ -48,24 +54,6 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background: #0ea5e9;
-        }
-
-        #result {
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .chart-card {
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 12px;
-            width: 500px;
         }
 
         canvas {
@@ -73,18 +61,23 @@
             border-radius: 10px;
             padding: 10px;
         }
+
+        .kpi {
+            text-align: center;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
 <body>
 
-<h1>Dengue Prediction Dashboard</h1>
+<h1>Dengue Analysis Dashboard</h1>
 
 <div class="container">
 
-    <!-- Input Section -->
+    <!-- Prediction -->
     <div class="card">
-        <h3>Predict Dengue Cases</h3>
+        <h3>Predict Cases</h3>
 
         <input id="state" placeholder="State (e.g., Punjab)">
         <input id="year" placeholder="Year">
@@ -92,20 +85,35 @@
 
         <button onclick="predict()">Predict</button>
 
-        <div id="result"></div>
+        <h3 id="result"></h3>
     </div>
 
-    <!-- Chart Section -->
+    <!-- KPI -->
+    <div class="card">
+        <h3>Key Insights</h3>
+        <div class="kpi">Total Cases: <span id="totalCases"></span></div>
+        <div class="kpi">Top State: <span id="topState"></span></div>
+    </div>
+
+    <!-- Trend Chart -->
     <div class="chart-card">
-        <h3>Prediction Chart</h3>
-        <canvas id="chart"></canvas>
+        <h3>Year-wise Trend</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- State Chart -->
+    <div class="chart-card">
+        <h3>Top States</h3>
+        <canvas id="stateChart"></canvas>
     </div>
 
 </div>
 
 <script>
-let chart;
 
+let trendChart, stateChart;
+
+// 🔮 Prediction
 function predict() {
     let state = document.getElementById("state").value;
     let year = document.getElementById("year").value;
@@ -122,29 +130,42 @@ function predict() {
     })
     .then(res => res.json())
     .then(data => {
-
         document.getElementById("result").innerText =
             "Predicted Cases: " + data.cases;
-
-        drawChart(data.cases);
     });
 }
 
-function drawChart(value) {
-    if (chart) chart.destroy();
+// 📊 Trend Chart (REALISTIC SAMPLE)
+trendChart = new Chart(document.getElementById("trendChart"), {
+    type: "line",
+    data: {
+        labels: [2019, 2020, 2021, 2022, 2023],
+        datasets: [{
+            label: "Cases Trend",
+            data: [5000, 2000, 4000, 7000, 9000],
+            borderColor: "#38bdf8",
+            fill: false
+        }]
+    }
+});
 
-    chart = new Chart(document.getElementById("chart"), {
-        type: "bar",
-        data: {
-            labels: ["Predicted Cases"],
-            datasets: [{
-                label: "Cases",
-                data: [value],
-                backgroundColor: "#38bdf8"
-            }]
-        }
-    });
-}
+// 📊 State Chart
+stateChart = new Chart(document.getElementById("stateChart"), {
+    type: "bar",
+    data: {
+        labels: ["Bihar", "Punjab", "Assam", "Delhi"],
+        datasets: [{
+            label: "Cases",
+            data: [20000, 15000, 8000, 12000],
+            backgroundColor: "#38bdf8"
+        }]
+    }
+});
+
+// 📊 KPI Data
+document.getElementById("totalCases").innerText = "54000";
+document.getElementById("topState").innerText = "Bihar";
+
 </script>
 
 </body>
