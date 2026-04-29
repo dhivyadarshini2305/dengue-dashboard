@@ -3,6 +3,7 @@
 <head>
     <title>Dengue Risk Intelligence System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data.js"></script>
 
     <style>
         body {
@@ -94,34 +95,10 @@
 </head>
 
 <body>
-<script src="data.js"></script>
+
 <script>
-function analyzeYear() {
-
-    let year = parseInt(document.getElementById("analysisYear").value);
-
-    let record = dengueData.find(d => d.year === year);
-
-    if (!record) {
-        document.getElementById("yearResult").innerText = "No data found!";
-        return;
-    }
-
-    let deathRate = (record.deaths / record.cases * 100).toFixed(2);
-
-    let insight = "";
-
-    if (record.cases > 60000) {
-        insight = "⚠️ High outbreak year";
-    } else {
-        insight = "Moderate dengue spread";
-    }
-
-    document.getElementById("yearResult").innerText =
-        "Cases: " + record.cases +
-        " | Deaths: " + record.deaths +
-        " | Death Rate: " + deathRate + "%" +
-        " | " + insight;
+if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
 }
 </script>
 
@@ -131,15 +108,15 @@ function analyzeYear() {
 
 <h1>Dengue Risk Intelligence System</h1>
 
-<!-- 🔥 MAIN RISK DISPLAY -->
+<!-- MAIN RISK DISPLAY -->
 <div class="risk-box">
     <div class="risk-title" id="riskTitle">System Status: Waiting Input</div>
     <div class="risk-value" id="riskValue">--</div>
 </div>
 
-<!-- 🔹 INPUT + INTELLIGENCE -->
 <div class="container">
 
+    <!-- Prediction -->
     <div class="card">
         <h3>Disease Risk Analyzer</h3>
 
@@ -152,6 +129,17 @@ function analyzeYear() {
         <div class="insight" id="decision"></div>
     </div>
 
+    <!-- Year Analysis -->
+    <div class="card">
+        <h3>Year Analysis</h3>
+
+        <input id="analysisYear" placeholder="Enter Year (e.g., 2022)">
+        <button onclick="analyzeYear()">Analyze</button>
+
+        <p id="yearResult"></p>
+    </div>
+
+    <!-- Intelligence -->
     <div class="card">
         <h3>System Intelligence</h3>
         <p>Total Cases: 54000</p>
@@ -160,15 +148,7 @@ function analyzeYear() {
     </div>
 
 </div>
-<div class="card">
-    <h3>Year Analysis</h3>
 
-    <input id="analysisYear" placeholder="Enter Year (e.g., 2022)">
-    <button onclick="analyzeYear()">Analyze</button>
-
-    <p id="yearResult"></p>
-</div>
-<!-- 🔹 VISUAL ANALYSIS -->
 <div class="container">
 
     <div class="chart-card">
@@ -185,6 +165,7 @@ function analyzeYear() {
 
 <script>
 
+// 🔮 Prediction
 function predict() {
 
     let state = document.getElementById("state").value;
@@ -232,12 +213,38 @@ function predict() {
     });
 }
 
+// 📊 Year Analysis
+function analyzeYear() {
+
+    let year = parseInt(document.getElementById("analysisYear").value);
+
+    let record = dengueData.find(d => d.year === year);
+
+    if (!record) {
+        document.getElementById("yearResult").innerText = "No data found!";
+        return;
+    }
+
+    let deathRate = (record.deaths / record.cases * 100).toFixed(2);
+
+    let insight = record.cases > 60000 ?
+        "⚠️ High outbreak year" :
+        "Moderate dengue spread";
+
+    document.getElementById("yearResult").innerText =
+        "Cases: " + record.cases +
+        " | Deaths: " + record.deaths +
+        " | Death Rate: " + deathRate + "%" +
+        " | " + insight;
+}
+
+// 🚪 Logout
 function logout() {
     localStorage.removeItem("loggedIn");
     window.location.href = "login.html";
 }
 
-// Charts (same)
+// Charts
 new Chart(document.getElementById("trendChart"), {
     type: "line",
     data: {
