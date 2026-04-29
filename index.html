@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dengue Analysis Dashboard</title>
+    <title>Dengue Risk Intelligence System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI';
             margin: 0;
             background: #0f172a;
             color: white;
@@ -14,7 +14,7 @@
 
         h1 {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .top-bar {
@@ -22,11 +22,29 @@
             padding: 10px 20px;
         }
 
+        .risk-box {
+            text-align: center;
+            padding: 30px;
+            background: #1e293b;
+            margin: 20px;
+            border-radius: 12px;
+        }
+
+        .risk-title {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .risk-value {
+            font-size: 40px;
+            margin-top: 10px;
+        }
+
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
             justify-content: center;
+            gap: 20px;
             padding: 20px;
         }
 
@@ -59,11 +77,6 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background: #0ea5e9;
         }
 
         canvas {
@@ -72,19 +85,9 @@
             padding: 10px;
         }
 
-        .kpi {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        #result {
+        .insight {
             margin-top: 10px;
-            font-weight: bold;
-        }
-
-        #insight {
             font-size: 14px;
-            margin-top: 5px;
             color: #cbd5f5;
         }
     </style>
@@ -93,50 +96,57 @@
 <body>
 
 <script>
-    // 🔐 LOGIN PROTECTION
-    if (localStorage.getItem("loggedIn") !== "true") {
-        window.location.href = "login.html";
-    }
+if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+}
 </script>
 
 <div class="top-bar">
     <button onclick="logout()">Logout</button>
 </div>
 
-<h1>Dengue Analysis Dashboard</h1>
+<h1>Dengue Risk Intelligence System</h1>
 
+<!-- 🔥 MAIN RISK DISPLAY -->
+<div class="risk-box">
+    <div class="risk-title" id="riskTitle">System Status: Waiting Input</div>
+    <div class="risk-value" id="riskValue">--</div>
+</div>
+
+<!-- 🔹 INPUT + INTELLIGENCE -->
 <div class="container">
 
-    <!-- Prediction -->
     <div class="card">
-        <h3>Predict Cases</h3>
+        <h3>Disease Risk Analyzer</h3>
 
         <input id="state" placeholder="State (e.g., Punjab)">
         <input id="year" placeholder="Year">
         <input id="deaths" placeholder="Deaths">
 
-        <button onclick="predict()">Predict</button>
+        <button onclick="predict()">Analyze Risk</button>
 
-        <h3 id="result"></h3>
-        <p id="insight"></p>
+        <div class="insight" id="decision"></div>
     </div>
 
-    <!-- KPI -->
     <div class="card">
-        <h3>Key Insights</h3>
-        <div class="kpi">Total Cases: <span id="totalCases"></span></div>
-        <div class="kpi">Top State: <span id="topState"></span></div>
+        <h3>System Intelligence</h3>
+        <p>Total Cases: 54000</p>
+        <p>High Risk Region: Bihar</p>
+        <p>Trend: Increasing</p>
     </div>
 
-    <!-- Trend Chart -->
+</div>
+
+<!-- 🔹 VISUAL ANALYSIS -->
+<div class="container">
+
     <div class="chart-card">
-        <h3>Year-wise Trend</h3>
+        <h3>Trend Analysis</h3>
         <canvas id="trendChart"></canvas>
     </div>
 
-    <!-- State Chart -->
     <div class="chart-card">
-        <h3>Top States</h3>
+        <h3>State Comparison</h3>
         <canvas id="stateChart"></canvas>
     </div>
 
@@ -144,10 +154,8 @@
 
 <script>
 
-let trendChart, stateChart;
-
-// 🔮 PREDICTION FUNCTION
 function predict() {
+
     let state = document.getElementById("state").value;
     let year = document.getElementById("year").value;
     let deaths = document.getElementById("deaths").value;
@@ -165,49 +173,53 @@ function predict() {
     .then(data => {
 
         let risk = "";
+        let color = "";
 
-        if (data.cases < 5000) risk = "Low Risk";
-        else if (data.cases < 15000) risk = "Medium Risk";
-        else risk = "High Risk";
+        if (data.cases < 5000) {
+            risk = "LOW RISK";
+            color = "lightgreen";
+        }
+        else if (data.cases < 15000) {
+            risk = "MEDIUM RISK";
+            color = "orange";
+        }
+        else {
+            risk = "HIGH RISK";
+            color = "red";
+        }
 
-        let resultText = "Predicted Cases: " + data.cases + " (" + risk + ")";
+        document.getElementById("riskTitle").innerText =
+            "⚠️ " + risk + " IN " + state.toUpperCase();
 
-        let resultBox = document.getElementById("result");
-        resultBox.innerText = resultText;
+        document.getElementById("riskValue").innerText =
+            "Predicted Cases: " + data.cases;
 
-        // 🎨 COLOR BASED ON RISK
-        if (risk === "High Risk") resultBox.style.color = "red";
-        else if (risk === "Medium Risk") resultBox.style.color = "orange";
-        else resultBox.style.color = "lightgreen";
+        document.getElementById("riskValue").style.color = color;
 
-        // 🧠 INSIGHT TEXT
-        document.getElementById("insight").innerText =
-            "Higher deaths tend to increase dengue case predictions.";
+        document.getElementById("decision").innerText =
+            "Suggested Action: Increase monitoring and healthcare readiness.";
     });
 }
 
-// 🚪 LOGOUT
 function logout() {
     localStorage.removeItem("loggedIn");
     window.location.href = "login.html";
 }
 
-// 📊 TREND CHART
-trendChart = new Chart(document.getElementById("trendChart"), {
+// Charts (same)
+new Chart(document.getElementById("trendChart"), {
     type: "line",
     data: {
         labels: [2019, 2020, 2021, 2022, 2023],
         datasets: [{
-            label: "Cases Trend",
+            label: "Trend",
             data: [5000, 2000, 4000, 7000, 9000],
-            borderColor: "#38bdf8",
-            fill: false
+            borderColor: "#38bdf8"
         }]
     }
 });
 
-// 📊 STATE CHART
-stateChart = new Chart(document.getElementById("stateChart"), {
+new Chart(document.getElementById("stateChart"), {
     type: "bar",
     data: {
         labels: ["Bihar", "Punjab", "Assam", "Delhi"],
@@ -218,10 +230,6 @@ stateChart = new Chart(document.getElementById("stateChart"), {
         }]
     }
 });
-
-// 📊 KPI DATA
-document.getElementById("totalCases").innerText = "54000";
-document.getElementById("topState").innerText = "Bihar";
 
 </script>
 
