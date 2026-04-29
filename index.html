@@ -94,10 +94,34 @@
 </head>
 
 <body>
-
+<script src="data.js"></script>
 <script>
-if (localStorage.getItem("loggedIn") !== "true") {
-    window.location.href = "login.html";
+function analyzeYear() {
+
+    let year = parseInt(document.getElementById("analysisYear").value);
+
+    let record = dengueData.find(d => d.year === year);
+
+    if (!record) {
+        document.getElementById("yearResult").innerText = "No data found!";
+        return;
+    }
+
+    let deathRate = (record.deaths / record.cases * 100).toFixed(2);
+
+    let insight = "";
+
+    if (record.cases > 60000) {
+        insight = "⚠️ High outbreak year";
+    } else {
+        insight = "Moderate dengue spread";
+    }
+
+    document.getElementById("yearResult").innerText =
+        "Cases: " + record.cases +
+        " | Deaths: " + record.deaths +
+        " | Death Rate: " + deathRate + "%" +
+        " | " + insight;
 }
 </script>
 
@@ -136,7 +160,14 @@ if (localStorage.getItem("loggedIn") !== "true") {
     </div>
 
 </div>
+<div class="card">
+    <h3>Year Analysis</h3>
 
+    <input id="analysisYear" placeholder="Enter Year (e.g., 2022)">
+    <button onclick="analyzeYear()">Analyze</button>
+
+    <p id="yearResult"></p>
+</div>
 <!-- 🔹 VISUAL ANALYSIS -->
 <div class="container">
 
