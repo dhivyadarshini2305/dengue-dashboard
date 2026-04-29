@@ -1,33 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dengue Analysis System</title>
+    <title>Dengue Risk Intelligence Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
             font-family: 'Segoe UI';
+            margin: 0;
             background: #0f172a;
             color: white;
-            margin: 0;
         }
 
         h1 {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
+        }
+
+        .top-bar {
+            text-align: right;
+            padding: 10px 20px;
+        }
+
+        .risk-box {
+            text-align: center;
+            padding: 30px;
+            background: #1e293b;
+            margin: 20px;
+            border-radius: 12px;
+        }
+
+        .risk-title {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .risk-value {
+            font-size: 40px;
+            margin-top: 10px;
         }
 
         .container {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            padding: 40px;
+            gap: 20px;
+            padding: 20px;
         }
 
         .card {
             background: #1e293b;
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
-            width: 400px;
-            text-align: center;
+            width: 320px;
+        }
+
+        .chart-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            width: 500px;
         }
 
         input {
@@ -47,28 +79,64 @@
             cursor: pointer;
         }
 
-        #result {
-            margin-top: 20px;
-            font-size: 18px;
+        canvas {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
         }
     </style>
 </head>
 
 <body>
 
-<h1>Dengue Year Analysis System</h1>
+<script>
+if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+}
+</script>
 
+<div class="top-bar">
+    <button onclick="logout()">Logout</button>
+</div>
+
+<h1>Dengue Risk Intelligence Dashboard</h1>
+
+<!-- 🔥 MAIN RISK DISPLAY -->
+<div class="risk-box">
+    <div class="risk-title" id="riskTitle">Enter Year to Analyze</div>
+    <div class="risk-value" id="riskValue">--</div>
+</div>
+
+<!-- 🔹 INPUT + INSIGHT -->
 <div class="container">
 
     <div class="card">
+        <h3>Year-Based Analysis</h3>
 
-        <h3>Analyze Dengue Data</h3>
-
-        <input id="year" placeholder="Enter Year (e.g., 2022)">
+        <input id="yearInput" placeholder="Enter Year (e.g., 2022)">
         <button onclick="analyze()">Analyze</button>
 
-        <div id="result"></div>
+        <p id="details"></p>
+    </div>
 
+    <div class="card">
+        <h3>System Insight</h3>
+        <p id="insightBox">Waiting for input...</p>
+    </div>
+
+</div>
+
+<!-- 🔹 CHARTS -->
+<div class="container">
+
+    <div class="chart-card">
+        <h3>Trend Analysis</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h3>Year Comparison</h3>
+        <canvas id="barChart"></canvas>
     </div>
 
 </div>
@@ -86,12 +154,11 @@ const dengueData = [
 
 function analyze() {
 
-    let year = parseInt(document.getElementById("year").value);
-
+    let year = parseInt(document.getElementById("yearInput").value);
     let record = dengueData.find(d => d.year === year);
 
     if (!record) {
-        document.getElementById("result").innerText = "No data found!";
+        alert("No data found");
         return;
     }
 
@@ -103,23 +170,60 @@ function analyze() {
     if (record.cases < 30000) {
         risk = "LOW RISK";
         color = "lightgreen";
-    }
-    else if (record.cases < 70000) {
+    } else if (record.cases < 70000) {
         risk = "MEDIUM RISK";
         color = "orange";
-    }
-    else {
+    } else {
         risk = "HIGH RISK";
         color = "red";
     }
 
-    document.getElementById("result").innerHTML =
-        "Total Cases: " + record.cases + "<br>" +
-        "Total Deaths: " + record.deaths + "<br>" +
-        "Death Rate: " + deathRate + "%<br>" +
-        "<b style='color:"+color+"'>"+risk+"</b><br>" +
-        "Insight: Higher cases indicate increased outbreak severity.";
+    document.getElementById("riskTitle").innerText =
+        "⚠️ " + risk + " YEAR: " + year;
+
+    document.getElementById("riskValue").innerText =
+        "Cases: " + record.cases;
+
+    document.getElementById("riskValue").style.color = color;
+
+    document.getElementById("details").innerText =
+        "Deaths: " + record.deaths + " | Death Rate: " + deathRate + "%";
+
+    document.getElementById("insightBox").innerText =
+        "Higher cases indicate stronger outbreak intensity and healthcare pressure.";
 }
+
+// Logout
+function logout() {
+    localStorage.removeItem("loggedIn");
+    window.location.href = "login.html";
+}
+
+// Charts
+new Chart(document.getElementById("trendChart"), {
+    type: "line",
+    data: {
+        labels: dengueData.map(d => d.year),
+        datasets: [{
+            label: "Cases Trend",
+            data: dengueData.map(d => d.cases),
+            borderColor: "#38bdf8"
+        }]
+    }
+});
+
+new Chart(document.getElementById("barChart"), {
+    type: "bar",
+    data: {
+        labels: dengueData.map(d => d.year),
+        datasets: [{
+            label: "Cases",
+            data: dengueData.map(d => d.cases),
+            backgroundColor: "#38bdf8"
+        }]
+    }
+});
+
 </script>
 
 </body>
