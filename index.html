@@ -17,6 +17,11 @@
             padding: 20px;
         }
 
+        .top-bar {
+            text-align: right;
+            padding: 10px 20px;
+        }
+
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -54,6 +59,11 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0ea5e9;
         }
 
         canvas {
@@ -66,10 +76,32 @@
             text-align: center;
             margin-bottom: 10px;
         }
+
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #insight {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #cbd5f5;
+        }
     </style>
 </head>
 
 <body>
+
+<script>
+    // 🔐 LOGIN PROTECTION
+    if (localStorage.getItem("loggedIn") !== "true") {
+        window.location.href = "login.html";
+    }
+</script>
+
+<div class="top-bar">
+    <button onclick="logout()">Logout</button>
+</div>
 
 <h1>Dengue Analysis Dashboard</h1>
 
@@ -86,6 +118,7 @@
         <button onclick="predict()">Predict</button>
 
         <h3 id="result"></h3>
+        <p id="insight"></p>
     </div>
 
     <!-- KPI -->
@@ -113,7 +146,7 @@
 
 let trendChart, stateChart;
 
-// 🔮 Prediction
+// 🔮 PREDICTION FUNCTION
 function predict() {
     let state = document.getElementById("state").value;
     let year = document.getElementById("year").value;
@@ -130,12 +163,36 @@ function predict() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("result").innerText =
-            "Predicted Cases: " + data.cases;
+
+        let risk = "";
+
+        if (data.cases < 5000) risk = "Low Risk";
+        else if (data.cases < 15000) risk = "Medium Risk";
+        else risk = "High Risk";
+
+        let resultText = "Predicted Cases: " + data.cases + " (" + risk + ")";
+
+        let resultBox = document.getElementById("result");
+        resultBox.innerText = resultText;
+
+        // 🎨 COLOR BASED ON RISK
+        if (risk === "High Risk") resultBox.style.color = "red";
+        else if (risk === "Medium Risk") resultBox.style.color = "orange";
+        else resultBox.style.color = "lightgreen";
+
+        // 🧠 INSIGHT TEXT
+        document.getElementById("insight").innerText =
+            "Higher deaths tend to increase dengue case predictions.";
     });
 }
 
-// 📊 Trend Chart (REALISTIC SAMPLE)
+// 🚪 LOGOUT
+function logout() {
+    localStorage.removeItem("loggedIn");
+    window.location.href = "login.html";
+}
+
+// 📊 TREND CHART
 trendChart = new Chart(document.getElementById("trendChart"), {
     type: "line",
     data: {
@@ -149,7 +206,7 @@ trendChart = new Chart(document.getElementById("trendChart"), {
     }
 });
 
-// 📊 State Chart
+// 📊 STATE CHART
 stateChart = new Chart(document.getElementById("stateChart"), {
     type: "bar",
     data: {
@@ -162,7 +219,7 @@ stateChart = new Chart(document.getElementById("stateChart"), {
     }
 });
 
-// 📊 KPI Data
+// 📊 KPI DATA
 document.getElementById("totalCases").innerText = "54000";
 document.getElementById("topState").innerText = "Bihar";
 
